@@ -1,52 +1,81 @@
 
 # 🚀 **CryptoMoneytor**
 
-### **Monitoreo de Transacciones Cripto en Tiempo Real con Node.js, Redis y TronGrid**
+### 🧐 **El Gran Vigilante de Criptomonedas**
+**CryptoMoneytor** es un servicio modular, escalable y de alto rendimiento diseñado para monitorear transacciones en múltiples redes blockchain en tiempo real. Su misión es ayudarte a **rastrear fondos**, **detectar eventos clave** y **recibir notificaciones precisas** con un esquema uniforme y flexible.
+
+Con soporte para redes como **TRON (TRX, USDT)**, **Ethereum (ERC20)**, **Polygon (USDT)**, **Ripple (XRP)** y **Bitcoin (BTC)**, **CryptoMoneytor** es la herramienta que necesitas para mantener tus transacciones bajo control.
 
 ---
 
-### 📋 **Descripción del Proyecto**
+## 📋 **Tabla de Contenidos**
 
-**Crypto Monitor Service** es un servicio modular escrito en **Node.js** que permite monitorear wallets en múltiples redes blockchain (como **TRON/TRC20**, **Bitcoin**, **Ethereum/ERC20**) de manera eficiente utilizando **polling manual**.  
-
-Este servicio:
-- **Monitorea direcciones** con intervalos inteligentes:
-   - **30 segundos** si hay facturas activas (vivas).
-   - **1 hora** si no hay facturas activas.
-- **Envia webhooks** ante los siguientes eventos:
-   - Detección de una nueva transacción.
-   - Actualización de confirmaciones hasta el límite configurado.
-- Es **escalable**, ya que utiliza **Redis** como sistema de almacenamiento y caché compartida.
-- Tiene un diseño **extensible** que soporta múltiples redes mediante **manejadores específicos**.
+1. [Descripción General](#descripción-general)
+2. [Características Principales](#características-principales)
+3. [Estructura del Proyecto](#estructura-del-proyecto)
+4. [Configuración y Ejecución](#configuración-y-ejecución)
+5. [Soporte de Redes Blockchain](#soporte-de-redes-blockchain)
+6. [Pruebas](#pruebas)
+7. [Contribuciones](#contribuciones)
+8. [Licencia](#licencia)
 
 ---
 
-### 🔧 **Características Principales**
+## 🧐 **Descripción General**
 
-1. **Monitoreo Inteligente**:
-   - Intervalos dinámicos según el estado de las wallets.
+**CryptoMoneytor** hace honor a su nombre al actuar como un **vigilante de tus transacciones cripto**. Diseñado con una arquitectura modular, permite monitorear wallets en tiempo real y enviar notificaciones mediante webhooks cuando ocurren eventos importantes como:
+- **Nuevas transacciones** (`new_transaction`).
+- **Actualizaciones de confirmaciones** (`update_transaction`).
+- **Confirmaciones completas** (`confirmed_transaction`).
 
-2. **Modularidad por Red**:
-   - Cada red blockchain tiene su propio manejador (`TRON/TRC20`, `Bitcoin`, `Ethereum`).
-
-3. **Integración con Redis**:
-   - Uso eficiente de memoria y estado compartido.
-
-4. **Webhook Integrado**:
-   - Notifica a un endpoint externo cuando detecta eventos importantes.
-
-5. **Configuración Flexible**:
-   - Personalizable mediante un archivo **`.env`**.
-
-6. **Listo para Producción**:
-   - Configurado para ser escalable con **Docker Compose** y balanceo de carga.
+Este servicio es altamente **escalable** y puede integrarse fácilmente en aplicaciones financieras, exchanges y plataformas de monitoreo.
 
 ---
 
-### 📂 **Estructura del Proyecto**
+## 🌟 **Características Principales**
 
-\`\`\`plaintext
-crypto-monitor/
+- **Soporte Multi-Blockchain:**
+  - Redes soportadas: **TRON (TRX, USDT)**, **Ethereum (ERC20)**, **Polygon (USDT)**, **Ripple (XRP)** y **Bitcoin (BTC)**.
+  
+- **Esquema Uniforme de Webhooks:**
+  Cada evento incluye datos como:
+  ```json
+  {
+    "wallet": "0xTuWallet",
+    "event": "new_transaction",
+    "data": {
+      "txID": "abcd1234",
+      "amount": "10",
+      "amountUSD": "20",
+      "coin": "USDT",
+      "confirmations": 2,
+      "address": "0xFromAddress",
+      "fee": "0.001",
+      "network": "TRON",
+      "sowAt": "2024-12-18T10:00:00.000Z",
+      "type": "CRD"
+    }
+  }
+  ```
+
+- **Conversión a USD en Tiempo Real:**
+  Calcula automáticamente el equivalente en USD para cada transacción utilizando APIs externas.
+
+- **Optimización con Redis:**
+  Implementa un caché para reducir solicitudes redundantes y optimizar el rendimiento.
+
+- **Configuración Flexible:**
+  Personalizable mediante un archivo `.env`.
+
+- **Despliegue Escalable:**
+  Listo para producción con **Docker Compose**.
+
+---
+
+## 📂 **Estructura del Proyecto**
+
+```plaintext
+CryptoMoneytor/
 │
 ├── .env                       # Variables de entorno
 ├── docker-compose.yml         # Configuración Docker
@@ -63,153 +92,90 @@ crypto-monitor/
 │   │   └── wallet.js          # Endpoint API para agregar wallets
 │   ├── services/
 │   │   ├── monitor.js         # Servicio general de monitoreo
-│   │   ├── webhook.js         # Webhook sender
+│   │   ├── conversion.js      # Servicio de conversión de monedas
+│   │   ├── webhook.js         # Servicio de notificaciones webhook
 │   │   ├── handlers/          # Manejadores específicos por red
-│   │   │   ├── tron-usdt.js   # Manejador TRC20
-│   │   │   ├── btc.js         # Manejador Bitcoin
-│   │   │   └── eth-erc20.js   # Manejador Ethereum
+│   │   │   ├── tron-trx.js    # Manejador TRX
+│   │   │   ├── tron-usdt.js   # Manejador TRC20 USDT
+│   │   │   ├── eth-erc20.js   # Manejador ERC20 USDT
+│   │   │   ├── polygon-usdt.js# Manejador Polygon USDT
+│   │   │   └── ripple-xrp.js  # Manejador Ripple XRP
 └── package.json               # Dependencias
-\`\`\`
+```
 
 ---
 
-### ⚙️ **Configuración y Ejecución Local**
+## ⚙️ **Configuración y Ejecución**
 
-1. **Clonar el repositorio**:
-   \`\`\`bash
-   git clone https://github.com/tuusuario/crypto-monitor.git
-   cd crypto-monitor
-   \`\`\`
+### **Requisitos Previos**
+1. Node.js (v16+)
+2. Redis
+3. Docker y Docker Compose
 
-2. **Instalar dependencias**:
-   \`\`\`bash
-   npm install
-   \`\`\`
+### **1. Configurar Variables de Entorno**
+Crea un archivo **`.env`** basado en este ejemplo:
 
-3. **Configurar las variables de entorno**:
-   Crea un archivo **`.env`** en la raíz del proyecto con el siguiente contenido:
+```dotenv
+# Configuración general
+PORT=3000
+REDIS_HOST=redis
+REDIS_PORT=6379
 
-   \`\`\`dotenv
-   # Configuración general
-   PORT=3000
-   REDIS_HOST=127.0.0.1
-   REDIS_PORT=6379
+# Redes soportadas
+TRON_MAX_CONFIRMATIONS=41
+ERC20_MAX_CONFIRMATIONS=12
+POLYGON_MAX_CONFIRMATIONS=12
+XRP_MAX_CONFIRMATIONS=6
+ETHERSCAN_API_KEY=your_etherscan_api_key
+POLYGONSCAN_API_KEY=your_polygonscan_api_key
+USDT_CONTRACT_ADDRESS=0xdac17f958d2ee523a2206206994597c13d831ec7
+```
 
-   # TRC20 Configuración
-   TRON_MAX_CONFIRMATIONS=41
-   TRON_FULL_NODE=https://api.trongrid.io
+### **2. Construir y Levantar el Proyecto**
+Usa Docker Compose para iniciar el servicio:
+```bash
+docker-compose up --build
+```
 
-   # Intervalos de monitoreo
-   POLLING_INTERVAL_ACTIVE=30000   # 30 segundos
-   POLLING_INTERVAL_IDLE=3600000   # 1 hora
-
-   # Webhook
-   WEBHOOK_URL=http://localhost:4000/webhook
-   \`\`\`
-
-4. **Iniciar Redis en local**:
-   Asegúrate de tener Redis instalado y corriendo:
-
-   \`\`\`bash
-   redis-server
-   \`\`\`
-
-5. **Iniciar el servicio**:
-   \`\`\`bash
-   node index.js
-   \`\`\`
-
-6. **Agregar wallets a monitorear**:
-
-   - **POST** \`http://localhost:3000/api/wallets\`
-   - **Body JSON**:
-     \`\`\`json
-     {
-       "network": "tron",
-       "coin": "usdt",
-       "wallet": "TXYZ1234567890"
-     }
-     \`\`\`
+### **3. Agregar Wallets a Monitorear**
+Haz una solicitud `POST` al endpoint:
+```bash
+curl -X POST http://localhost:3000/api/wallets -H "Content-Type: application/json" -d '{"network": "tron", "coin": "trx", "wallet": "TXYZ1234567890"}'
+```
 
 ---
 
-### 🐳 **Despliegue con Docker Compose**
+## 🌐 **Soporte de Redes Blockchain**
 
-Si prefieres desplegarlo usando Docker:
-
-1. **Construir y levantar los contenedores**:
-   \`\`\`bash
-   docker-compose up --build
-   \`\`\`
-
-2. **Agregar wallets** usando el mismo endpoint.
-
----
-
-### 🔗 **Endpoints API**
-
-| Método | Ruta             | Descripción                           |
-|--------|------------------|---------------------------------------|
-| POST   | \`/api/wallets\`   | Agregar una wallet a monitorear.      |
+| Red       | Moneda   | Confirmaciones Máximas | API Utilizada       |
+|-----------|----------|------------------------|---------------------|
+| TRON      | TRX, USDT| 41                     | TronGrid            |
+| Ethereum  | USDT     | 12                     | Etherscan           |
+| Polygon   | USDT     | 12                     | PolygonScan         |
+| Ripple    | XRP      | 6                      | Ripple Data API     |
+| Bitcoin   | BTC      | 6                      | Blockchain.info     |
 
 ---
 
-### 🚦 **Flujo de Ejecución**
+## 🧪 **Pruebas**
 
-1. Se agrega una wallet mediante el **endpoint API**.
-2. El sistema inicia el **polling** para monitorear la red correspondiente.
-3. Detecta eventos como:
-   - **Nueva transacción**.
-   - **Confirmaciones** de la transacción.
-4. Envía un **webhook** al servicio configurado con los datos del evento.
-5. Si no hay wallets activas, el polling se ajusta a **1 hora**.
+### **1. Transacciones Nuevas**
+Verifica que el webhook reciba eventos `new_transaction` para nuevas transacciones.
 
----
+### **2. Confirmaciones Progresivas**
+Asegúrate de que los eventos `update_transaction` se envían al aumentar las confirmaciones.
 
-### 📜 **Ejemplo de Webhook**
-
-El servicio enviará un JSON similar a este:
-
-\`\`\`json
-{
-  "wallet": "TXYZ1234567890",
-  "event": "new_transaction",
-  "data": {
-    "txID": "abcd1234",
-    "amount": "10",
-    "coint": "USDT",
-    "confirmations": 1
-  }
-}
-\`\`\`
+### **3. Confirmaciones Completas**
+Comprueba que el evento `confirmed_transaction` se envía cuando se alcanzan las confirmaciones máximas.
 
 ---
 
-### 🛠️ **Tecnologías Utilizadas**
+## 🤝 **Contribuciones**
 
-- **Node.js**: Lógica principal.
-- **Redis**: Almacenamiento temporal y estado compartido.
-- **TronGrid**: API para TRC20 (TRON).
-- **Docker**: Contenerización del servicio.
-- **Docker Compose**: Escalabilidad horizontal.
+¡Las contribuciones son bienvenidas! Si deseas agregar soporte para nuevas redes o mejorar la lógica existente, siéntete libre de abrir un **issue** o enviar un **pull request**.
 
 ---
 
-### 🤝 **Contribuciones**
+## 📝 **Licencia**
 
-¡Las contribuciones son bienvenidas! Siéntete libre de abrir un **issue** o enviar un **Pull Request**.
-
----
-
-### 📝 **Licencia**
-
-Este proyecto está bajo la licencia **MIT**. Consulta el archivo \`LICENSE\` para más detalles.
-
----
-
-### 📧 **Contacto**
-
-Si tienes alguna duda o sugerencia, contáctame en:
-
-- **GitHub**: [https://github.com/rrortega](https://github.com/rrortega)
-- **Email**: rolymayo11@gmail.com
+Este proyecto está bajo la licencia **MIT**.

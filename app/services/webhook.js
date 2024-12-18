@@ -1,11 +1,11 @@
 const axios = require('axios');
 
-async function send(wallet, data, event) {
+async function send(data) {
     try {
-        await axios.post(process.env.WEBHOOK_URL, { wallet,  data, event });
-        console.log(`Webhook enviado: ${event} para ${wallet}`);
+        await axios.post(process.env.WEBHOOK_URL, data);
+        console.log(`Webhook enviado con éxito para ${data.wallet}: ${data.event}`);
     } catch (error) {
-        console.error(`Error enviando webhook para ${wallet}:`, error.message);
+        console.error(`Error enviando webhook para ${data.wallet}:`, error.message);
     }
 }
 

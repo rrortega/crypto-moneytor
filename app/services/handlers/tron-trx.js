@@ -4,8 +4,8 @@ const redis = require('../../config/redis');
 const webhook = require('../webhook');
 const conversionService = require('../services/conversion');
 
-// Configuración de confirmaciones máximas para TRC20
-const MAX_CONFIRMATIONS = process.env.TRON_MAX_CONFIRMATIONS || 41;
+// Configuración de confirmaciones máximas para TRX
+const MAX_CONFIRMATIONS = process.env.TRX_MAX_CONFIRMATIONS || 41;
 
 async function monitor(wallet) {
     try {
@@ -23,7 +23,7 @@ async function monitor(wallet) {
             const amount = tronWeb.fromSun(txInfo.amount || '0');
 
             // Convertir cantidad a USD
-            const amountUSD = await conversionService.convertToUSD('USDT', amount);
+            const amountUSD = await conversionService.convertToUSD('TRX', amount);
 
             // Construir el objeto webhook
             const webhookData = {
@@ -33,12 +33,12 @@ async function monitor(wallet) {
                     txID: tx.txID,
                     amount: amount,
                     amountUSD: amountUSD,
-                    coin: 'USDT',
+                    coin: 'TRX',
                     confirmations: confirmations,
                     address: isIncoming
                         ? tx.raw_data.contract[0].parameter.value.owner_address // Dirección de origen
                         : tx.raw_data.contract[0].parameter.value.to_address, // Dirección de destino
-                    fee: tronWeb.fromSun(txInfo.fee || '0'), // Convertir fee de SUN a USDT
+                    fee: tronWeb.fromSun(txInfo.fee || '0'), // Convertir fee de SUN a TRX
                     network: 'TRON',
                     sowAt: new Date(txInfo.blockTimeStamp).toISOString(),
                     type: type,
@@ -61,7 +61,7 @@ async function monitor(wallet) {
             }
         }
     } catch (error) {
-        console.error(`Error monitoreando wallet TRC20 ${wallet}:`, error.message);
+        console.error(`Error monitoreando wallet TRX ${wallet}:`, error.message);
     }
 }
 
