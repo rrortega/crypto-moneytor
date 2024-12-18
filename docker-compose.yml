@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+
+  crypto-monitor:
+    build: .
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - WEBHOOK_URL=http://webhook-service/notify
+    depends_on:
+      - redis
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "3000-3001:3000"
