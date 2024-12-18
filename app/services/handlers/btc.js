@@ -8,8 +8,7 @@ async function monitor(wallet) {
         const transactions = response.data.txs;
 
         for (const tx of transactions) {
-            const txID = tx.hash;
-
+            const txID = tx.hash; 
             const lastTxID = await redis.get(`wallet:${wallet}:last_tx`);
             if (txID !== lastTxID) {
                 console.log(`Nueva transacción en BTC: ${txID}`);

@@ -176,7 +176,8 @@ El servicio enviará un JSON similar a este:
   "event": "new_transaction",
   "data": {
     "txID": "abcd1234",
-    "amount": "10 USDT",
+    "amount": "10",
+    "coint": "USDT",
     "confirmations": 1
   }
 }
