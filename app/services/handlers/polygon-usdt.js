@@ -1,27 +1,26 @@
 const axios = require('axios');
-const redis = require('../config/redis');
+const redis = require('../../config/redis');
 const webhook = require('../webhook');
-const conversionService = require('../services/conversion');
+const conversionService = require('../conversion');
+const { polygonscanApiKeyManager } = require('../apikey-manager');
+
 
 // Configuración de confirmaciones máximas para Polygon
 const MAX_CONFIRMATIONS = process.env.POLYGON_MAX_CONFIRMATIONS || 12;
 
 async function monitor(wallet) {
-    try {
-        const response = await axios.get(`https://api.polygonscan.com/api`, {
-            params: {
-                module: 'account',
-                action: 'tokentx',
-                address: wallet,
-                contractaddress: process.env.USDT_CONTRACT_ADDRESS,
-                startblock: 0,
-                endblock: 99999999,
-                sort: 'asc',
-                apikey: process.env.POLYGONSCAN_API_KEY,
-            },
+    try { 
+        const response = await polygonscanApiKeyManager.fetchFromService('https://api.polygonscan.com/api', {
+            module: 'account',
+            action: 'txlist',
+            address: wallet,
+            startblock: 0,
+            endblock: 99999999,
+            sort: 'asc',
         });
 
-        const transactions = response.data.result;
+        const transactions = response.result;
+
 
         for (const tx of transactions) {
             const txID = tx.hash;

@@ -1,26 +1,24 @@
 const axios = require('axios');
-const redis = require('../config/redis');
+const redis = require('../../config/redis');
 const webhook = require('../webhook');
-const conversionService = require('../services/conversion');
+const conversionService = require('../conversion');
+const { etherscanApiKeyManager } = require('../apikey-manager');
+
 
 // Configuración de confirmaciones máximas para ETH
 const MAX_CONFIRMATIONS = process.env.ETH_MAX_CONFIRMATIONS || 12;
 
 async function monitor(wallet) {
     try {
-        const response = await axios.get(`https://api.etherscan.io/api`, {
-            params: {
-                module: 'account',
-                action: 'txlist',
-                address: wallet,
-                startblock: 0,
-                endblock: 99999999,
-                sort: 'asc',
-                apikey: process.env.ETHERSCAN_API_KEY,
-            },
-        });
-
-        const transactions = response.data.result;
+        const response = await etherscanApiKeyManager.fetchFromService(`https://api.etherscan.io/api`, {
+            module: 'account',
+            action: 'txlist',
+            address: wallet,
+            startblock: 0,
+            endblock: 99999999,
+            sort: 'asc',
+        }); 
+        const transactions = response.result;
 
         for (const tx of transactions) {
             const txID = tx.hash;
@@ -71,6 +69,6 @@ async function monitor(wallet) {
         console.error(`Error monitoreando wallet ETH ${wallet}:`, error.message);
     }
 }
- 
+
 
 module.exports = { monitor };

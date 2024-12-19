@@ -1,7 +1,7 @@
 const axios = require('axios');
-const redis = require('../config/redis');
+const redis = require('../../config/redis');
 const webhook = require('../webhook');
-const conversionService = require('../services/conversion');
+const conversionService = require('../conversion');
 
 // Configuración de confirmaciones máximas para BTC
 const MAX_CONFIRMATIONS = process.env.BTC_MAX_CONFIRMATIONS || 6;
