@@ -77,15 +77,9 @@ describe('Servicio de Webhook', () => {
       wallet: 'billetera-prueba',
       data: { txID: '1234', confirmations: 1 },
     }; 
-    
-//preparando para que falle
-process.env.MAX_RETRIES = 1;
-await cache.set(`wallet:${data.wallet}:callback`,'http://localhost:9999/error-webhook');
-    
-
 
     cacheGetStub.withArgs(`webhook:${data.wallet}:${data.data.txID}`).resolves(null);
-    cacheGetStub.withArgs(`wallet:${data.wallet}:callback`).resolves('http://localhost:9999/error-webhook');
+    cacheGetStub.withArgs(`wallet:${data.wallet}:callback`).resolves(null);
 
     // Asegúrate de interceptar todas las llamadas a axios.post
     postStub.callsFake(async () => {
