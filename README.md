@@ -186,20 +186,27 @@ Usa Docker Compose para iniciar el servicio:
 docker-compose up --build
 ```
 
-### **3. Agregar Wallets a Monitorear**
+### **3. Comenzar a Monitorear una Wallets**
 Haz una solicitud `POST` al endpoint:
-```bash
-curl -X POST http://localhost:3000/api/subscribe -H "Content-Type: application/json" -d '{"network": "tron", "coin": "trx", "wallet": "TXYZ1234567890", "callbackUrl": "https://your-callback-url.com"}'
+```json
+curl -X POST http://localhost:3000/api/subscribe 
+-H "Content-Type: application/json" 
+-d '{
+       "network": "tron",
+       "coin": "trx",
+       "wallet": "TXYZ1234567890",
+       "callbackUrl": "https://your-callback-url.com"
+    }'
 ```
 ### **4. Listar Wallets a Monitoreadas**
 Haz una solicitud `GET` al endpoint:
-```bash
-curl -X GET http://localhost:3000/api/subscribtions -H "Content-Type: application/json"
+```json
+curl -X GET http://localhost:3000/api/subscribtions
 ```
-### **5. Eliminar Wallet Para dejar de Monitoriar**
+### **5. Dejar de Monitoriar una Wallet**
 Haz una solicitud `DELETE` al endpoint pasando en el path el address de la wallet:
-```bash
-curl -X DELETE http://localhost:3000/api/:walletAddress -H "Content-Type: application/json"
+```json
+curl -X DELETE http://localhost:3000/api/:walletAddress 
 ```
 
 ---
@@ -233,5 +240,5 @@ Para entender mejor el flujo del servicio, consulta el siguiente diagrama:
 Este proyecto está bajo la licencia **MIT**.
 
 ------
-NO SEAS MALITO Y REGÁLAME UN CAFECITO 
+TAMBIÉN PUEDES REGÁLAME UN CAFECITO 
 👉 [https://ko-fi.com/rrortega](https://ko-fi.com/rrortega)

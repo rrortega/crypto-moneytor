@@ -1,5 +1,5 @@
 const express = require('express');
-const cache = require('../helpers/cache');
+const cache = require('../helpers/cacheHelper');
 const router = express.Router();
 
 /** 
