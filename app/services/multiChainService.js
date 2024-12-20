@@ -25,9 +25,10 @@ class MultiChainService {
         const apiKey = await this.ApiKeyHelper.getAvailableKey(); // Obtiene una clave disponible
 
         try {
+           
             const response = await axios.get(network.apiurl, {
                 params: {
-                    chainid: chainId,
+                    //chainid: chainId,
                     apikey: apiKey,
                     address: walletAddress,
                     module: 'account',
