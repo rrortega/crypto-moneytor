@@ -222,3 +222,7 @@ http://localhost:3000/api-docs
 ## 📝 **Licencia**
 
 Este proyecto está bajo la licencia **MIT**.
+
+------
+NO SEAS MALITO Y REGÁLAME UN CAFECITO 
+👉 [https://ko-fi.com/rrortega](https://ko-fi.com/rrortega)
