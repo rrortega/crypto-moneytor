@@ -1,0 +1,100 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "CryptoMoneytor API",
+      "version": "1.0.0",
+      "description": "API para monitorear wallets en redes blockchain"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000/api",
+        "description": "Servidor local"
+      }
+    ],
+    "paths": {
+      "/subscribe": {
+        "post": {
+          "summary": "Suscribir una wallet",
+          "description": "Permite suscribir una wallet para monitoreo",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "network": { "type": "string" },
+                    "coin": { "type": "string" },
+                    "wallet": { "type": "string" },
+                    "callbackUrl": { "type": "string" }
+                  },
+                  "required": ["network", "coin", "wallet"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Wallet suscrita con éxito"
+            },
+            "400": {
+              "description": "Error en la solicitud"
+            }
+          }
+        }
+      },
+      "/{wallet}": {
+        "delete": {
+          "summary": "Eliminar una wallet",
+          "description": "Permite eliminar una wallet del monitoreo",
+          "parameters": [
+            {
+              "name": "wallet",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "Dirección de la wallet a eliminar"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Wallet eliminada con éxito"
+            },
+            "404": {
+              "description": "Wallet no encontrada"
+            }
+          }
+        }
+      },
+      "/subscriptions": {
+        "get": {
+          "summary": "Obtener wallets suscritas",
+          "description": "Devuelve una lista de todas las wallets suscritas actualmente",
+          "responses": {
+            "200": {
+              "description": "Lista de wallets suscritas",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "network": { "type": "string" },
+                        "coin": { "type": "string" },
+                        "wallet": { "type": "string" },
+                        "callbackUrl": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  

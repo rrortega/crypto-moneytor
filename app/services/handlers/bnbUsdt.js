@@ -1,36 +1,35 @@
 const axios = require('axios');
-const redis = require('../config/redis');
+const cache = require('../../helpers/cacheHelper');
 const webhook = require('../webhook');
-const conversionService = require('../conversion');
-const { etherscanApiKeyManager } = require('../apikey-manager');
+const CurrencyHelper = require('../../helpers/currencyHelper');
+const MultiChainService = require('../multiChainService');
 
-// Configuración de confirmaciones máximas para ERC20
-const MAX_CONFIRMATIONS = process.env.ERC20_MAX_CONFIRMATIONS || 12;
+// Configuración de confirmaciones máximas para BEP20
+const MAX_CONFIRMATIONS = process.env.BEP20_MAX_CONFIRMATIONS || 12;
 
 async function monitor(wallet) {
     try {
-        const response = await etherscanApiKeyManager.fetchFromService(`https://api.etherscan.io/api`, {
-            module: 'account',
-            action: 'txlist',
-            address: wallet,
-            startblock: 0,
-            endblock: 99999999,
-            sort: 'asc',
-        });
+        const chainService = new MultiChainService(
+            'bscscan',
+            process.env.MULTICHAIN_API_KEYS.split(','), // Claves desde el .env
+            parseInt(process.env.BSCSCAN_MAX_REQUESTS, 10), // Límite de solicitudes
+            parseInt(process.env.BSCSCAN_RESET_INTERVAL, 10) // Intervalo de reinicio
+        );
 
-        const transactions = response.result;
+        const transactions = await chainService.getTransactions(MultiChainService.BNB_SMART_CHAIN_MAINNET, wallet);
 
         for (const tx of transactions) {
             const txID = tx.hash;
             const confirmations = tx.confirmations;
-            const lastTxID = await redis.get(`wallet:${wallet}:last_tx`);
+            const lastTxID = await cache.get(`wallet:${wallet}:last_tx`);
 
             const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase();
-            const type = isIncoming ? 'CRD' : 'DBT';
+            if (!isIncoming) continue; // Ignorar transacciones salientes
+
             const amount = parseFloat(tx.value) / 1e6; // Convertir de USDT (con 6 decimales)
 
             // Convertir cantidad a USD
-            const amountUSD = await conversionService.convertToUSD('USDT', amount);
+            const amountUSD = await CurrencyHelper.convertToUSD('USDT', amount);
 
             // Construir el objeto webhook
             const webhookData = {
@@ -42,16 +41,17 @@ async function monitor(wallet) {
                     amountUSD: amountUSD,
                     coin: 'USDT',
                     confirmations: confirmations,
+                    confirmed: confirmations >= MAX_CONFIRMATIONS,
                     address: isIncoming ? tx.from : tx.to,
-                    fee: parseFloat(tx.gasUsed * tx.gasPrice) / 1e18, // Convertir de Wei a ETH
-                    network: 'ETHEREUM',
+                    fee: parseFloat(tx.gasUsed * tx.gasPrice) / 1e18, // Convertir de Wei a BNB
+                    network: 'BNB',
                     sowAt: new Date(tx.timeStamp * 1000).toISOString(),
-                    type: type,
+                    type: 'CRD'
                 },
             };
 
             // Cambiar el evento a "confirmed_transaction" si alcanza las confirmaciones máximas
-            if (confirmations === MAX_CONFIRMATIONS) {
+            if (confirmations >= MAX_CONFIRMATIONS) {
                 webhookData.event = 'confirmed_transaction';
             }
 
@@ -61,12 +61,12 @@ async function monitor(wallet) {
 
                 // Actualizar el último txID para evitar duplicados
                 if (tx.txID !== lastTxID) {
-                    await redis.set(`wallet:${wallet}:last_tx`, tx.txID);
+                    await cache.set(`wallet:${wallet}:last_tx`, tx.txID);
                 }
             }
         }
     } catch (error) {
-        console.error(`Error monitoreando wallet ERC20 ${wallet}:`, error.message);
+        console.error(`Error monitoreando wallet BEP20 ${wallet}:`, error.message);
     }
 }
 

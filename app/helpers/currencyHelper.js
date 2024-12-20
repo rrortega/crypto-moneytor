@@ -1,33 +1,62 @@
 const axios = require('axios');
-const redis = require('../config/redis');
+const cache = require('./cacheHelper');
 
-class ConversionService {
+class CurrencyHelper {
     constructor() {
-        this.cacheTTL = 3600; // 1 hora de caché en segundos
+        if(CurrencyHelper.instance){
+            return CurrencyHelper.instance;
+        }
+        this.cacheTTL = 3600; // 1 hora de caché en segundos 
+        this.rateCache = {};
+        CurrencyHelper.instance=this;
+    }
+    static instance = null;
+    async convert(from, to, amount) {
+        if (from === to) return amount;
+        // Realiza la llamada a un servicio de precios en tiempo real, por ejemplo, CoinGecko
+        const rate = await this.getRate(from, to); // Obtén la tasa de cambio desde una API
+        return amount * rate;
     }
 
+    async getRate(from, to) {
+        const CACHE_DURATION = (process.env.CURRENCY_CACHE_MINUTE_DURACTION ?? 60) * 1000; // 1 minuto en milisegundos 
+        const fromFixed = from.toLowerCase()
+            .replace('usdt', 'tether')
+            .replace('trx', 'tron')
+            .replace('xrp', 'ripple')
+            ;
+        const toFixed = to.toLowerCase()
+            .replace(/tether|usdt|usdc/, 'usd');
+        const cacheKey = `${fromFixed}2${toFixed}`;
+
+        if (this.rateCache[cacheKey]
+            && Date.now() - this.rateCache[cacheKey].timestamp < CACHE_DURATION) {
+            return this.rateCache[cacheKey].rate;
+        }
+        // Lógica para obtener la tasa de cambio desde CoinGecko, Binance, etc.
+        const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price`, {
+            params: { ids: fromFixed, vs_currencies: toFixed },
+        });
+        this.rateCache[`${fromFixed}2${toFixed}`] = {
+            rate: response?.data[fromFixed][toFixed] || 1,// Default: 1 si no hay tasa de cambio
+            timestamp: Date.now(),
+        };
+        return this.rateCache[cacheKey].rate;
+    }
     /**
      * Convierte cualquier moneda a USD
      * @param {string} currency - Moneda origen (e.g., BTC, USDT, EUR)
      * @param {number} amount - Cantidad a convertir
-     * @param {boolean} ignoreCache - Ignorar caché
      * @returns {Promise<number>} - Monto convertido a USD
      */
-    async convertToUSD(currency, amount = 1, ignoreCache = false) {
+    async convertToUSD(currency, amount = 1) {
         if (!amount || currency.toUpperCase() === 'USD') return amount;
 
-        const cacheKey = `${currency}-USD-${amount}`;
-        if (!ignoreCache) {
-            const cachedRate = await redis.get(cacheKey);
-            if (cachedRate) {
-                return parseFloat(cachedRate) * amount;
-            }
-        }
+
 
         try {
             let rate = await this.getRateToUSD(currency);
             if (rate) {
-                await redis.set(cacheKey, rate, 'EX', this.cacheTTL); // Guardar en caché
                 return rate * amount;
             }
         } catch (error) {
@@ -95,4 +124,4 @@ class ConversionService {
     }
 }
 
-module.exports = new ConversionService();
+module.exports = new CurrencyHelper();

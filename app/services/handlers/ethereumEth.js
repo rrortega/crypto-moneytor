@@ -1,36 +1,34 @@
 const axios = require('axios');
-const redis = require('../../config/redis');
+const cache = require('../../helpers/cacheHelper');
 const webhook = require('../webhook');
-const conversionService = require('../conversion');
-const { etherscanApiKeyManager } = require('../apikey-manager');
-
+const CurrencyHelper = require('../../helpers/currencyHelper'); 
+const MultiChainService = require('../multiChainService');
 
 // Configuración de confirmaciones máximas para ETH
 const MAX_CONFIRMATIONS = process.env.ETH_MAX_CONFIRMATIONS || 12;
 
 async function monitor(wallet) {
     try {
-        const response = await etherscanApiKeyManager.fetchFromService(`https://api.etherscan.io/api`, {
-            module: 'account',
-            action: 'txlist',
-            address: wallet,
-            startblock: 0,
-            endblock: 99999999,
-            sort: 'asc',
-        }); 
-        const transactions = response.result;
+        const chainService = new MultiChainService(
+            'etherscan',
+            process.env.MULTICHAIN_API_KEYS.split(','), // Claves desde el .env
+            parseInt(process.env.ETHERSCAN_MAX_REQUESTS, 10), // Límite de solicitudes
+            parseInt(process.env.ETHERSCAN_RESET_INTERVAL, 10) // Intervalo de reinicio
+        );
 
+
+        const transactions = await chainService.getTransactions(MultiChainService.ETHEREUM_MAINNET,wallet); 
         for (const tx of transactions) {
             const txID = tx.hash;
             const confirmations = tx.confirmations;
-            const lastTxID = await redis.get(`wallet:${wallet}:last_tx`);
+            const lastTxID = await cache.get(`wallet:${wallet}:last_tx`);
 
             const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase();
             const type = isIncoming ? 'CRD' : 'DBT';
             const amount = parseFloat(tx.value) / 1e18; // Convertir de Wei a ETH
 
             // Convertir cantidad a USD
-            const amountUSD = await conversionService.convertToUSD('ETH', amount);
+            const amountUSD = await CurrencyHelper.convertToUSD('ETH', amount);
 
             // Construir el objeto webhook
             const webhookData = {
@@ -42,6 +40,7 @@ async function monitor(wallet) {
                     amountUSD: amountUSD,
                     coin: 'ETH',
                     confirmations: confirmations,
+                    confirmed: confirmations >= MAX_CONFIRMATIONS ,
                     address: isIncoming ? tx.from : tx.to,
                     fee: parseFloat(tx.gasUsed * tx.gasPrice) / 1e18, // Convertir de Wei a ETH
                     network: 'ETHEREUM',
@@ -61,7 +60,7 @@ async function monitor(wallet) {
 
                 // Actualizar el último txID para evitar duplicados
                 if (tx.txID !== lastTxID) {
-                    await redis.set(`wallet:${wallet}:last_tx`, tx.txID);
+                    await cache.set(`wallet:${wallet}:last_tx`, tx.txID);
                 }
             }
         }

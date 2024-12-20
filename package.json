@@ -1,22 +1,51 @@
 {
-    "name": "crypto-moneytor",
-    "version": "1.0.0",
-    "description": "Servicio modular para monitorear wallets cripto (TRON/TRC20, BTC, ETH/ERC20) con Node.js, Redis y webhooks.",
-    "main": "index.js",
-    "scripts": {
-      "start": "node index.js",
-      "dev": "nodemon index.js"
-    },
-    "dependencies": {
-      "axios": "^1.4.0",
-      "dotenv": "^16.0.3",
-      "express": "^4.18.2",
-      "ioredis": "^5.3.1",
-      "tronweb": "^4.0.0"
-    },
-    "devDependencies": {
-      "nodemon": "^3.0.1"
-    },
-    "author": "Tu Nombre",
-    "license": "MIT"
-  }
+  "name": "crypto-moneytor",
+  "version": "1.0.0",
+  "description": "Servicio modular para monitorear pagos entrantes a wallets cripto con Node.js.",
+  "main": "app/index.js",
+  "exports": {
+    "./config": "./config",
+    "./routes": "./routes",
+    "./services": "./services",
+    "./tests": "./tests",
+    "./app": "./app"
+  },
+  "scripts": {
+    "start": "node app/index.js",
+    "dev": "nodemon app/index.js",
+    "test": "NODE_OPTIONS=\"--no-warnings\" mocha tests/**/*.spec.mjs --loader ts-node/esm --reporter spec"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.17.1",
+    "redis": "^4.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.2",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "chai": "^5.1.2",
+    "mocha": "^11.0.1",
+    "nodemon": "^3.0.1",
+    "path": "^0.12.7",
+    "sinon": "^19.0.2",
+    "sinon-chai": "^4.0.0",
+    "supertest": "^7.0.0"
+  },
+  "author": {
+    "name": "Rolando Rodriguez Ortega",
+    "email": "rolymayo11@gmail.com",
+    "url": "https://github.com/rrortega"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rrortega/crypto-moneytor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rrortega/crypto-moneytor/issues",
+    "email": "rolymayo11@gmail.com"
+  },
+  "homepage": "https://github.com/rrortega/crypto-moneytor#readme",
+  "license": "MIT"
+}

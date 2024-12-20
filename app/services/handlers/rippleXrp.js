@@ -1,7 +1,7 @@
 const axios = require('axios');
-const redis = require('../../config/redis');
+const cache = require('../../helpers/cacheHelper');
 const webhook = require('../webhook');
-const conversionService = require('../services/conversion');
+const CurrencyHelper = require('../../helpers/currencyHelper');
 
 // Configuración de confirmaciones máximas para Ripple
 const MAX_CONFIRMATIONS = process.env.XRP_MAX_CONFIRMATIONS || 6;
@@ -21,14 +21,14 @@ async function monitor(wallet) {
         for (const tx of transactions) {
             const txID = tx.hash;
             const confirmations = tx.ledger_index ? response.data.ledger_index - tx.ledger_index : 0;
-            const lastTxID = await redis.get(`wallet:${wallet}:last_tx`);
+            const lastTxID = await cache.get(`wallet:${wallet}:last_tx`);
 
             const isIncoming = tx.specification.destination === wallet;
             const type = isIncoming ? 'CRD' : 'DBT';
             const amount = parseFloat(tx.specification.amount.value);
 
             // Convertir cantidad a USD
-            const amountUSD = await conversionService.convertToUSD('XRP', amount);
+            const amountUSD = await CurrencyHelper.convertToUSD('XRP', amount);
 
             // Construir el objeto webhook
             const webhookData = {
@@ -40,6 +40,7 @@ async function monitor(wallet) {
                     amountUSD: amountUSD,
                     coin: 'XRP',
                     confirmations: confirmations,
+                    confirmed: confirmations >= MAX_CONFIRMATIONS ,
                     address: isIncoming ? tx.specification.source : tx.specification.destination,
                     fee: parseFloat(tx.outcome.fee),
                     network: 'RIPPLE',
@@ -59,7 +60,7 @@ async function monitor(wallet) {
 
                 // Actualizar el último txID para evitar duplicados
                 if (txID !== lastTxID) {
-                    await redis.set(`wallet:${wallet}:last_tx`, txID);
+                    await cache.set(`wallet:${wallet}:last_tx`, txID);
                 }
             }
         }
