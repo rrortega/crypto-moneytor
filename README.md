@@ -212,6 +212,15 @@ http://localhost:3000/api-docs
 ```
 
 ---
+---
+
+## 📊 **Flujo del Sistema**
+
+Para entender mejor el flujo del servicio, consulta el siguiente diagrama:
+
+![Flujo del Servicio](diagram.png)
+
+---
 
 ## 🤝 **Contribuciones**
 
