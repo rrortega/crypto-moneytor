@@ -21,20 +21,17 @@ async function monitor(wallet) {
         for (const tx of transactions) {
             const txID = tx.hash;
             const confirmations = tx.ledger_index ? response.data.ledger_index - tx.ledger_index : 0;
-            const lastTxID = await cache.get(`wallet:${wallet}:last_tx`);
-
+            const lastTxID = await cache.get(`wallet:${wallet}:last_tx`); 
             const isIncoming = tx.specification.destination === wallet;
             if (!isIncoming) continue;
             if (confirmations > MAX_CONFIRMATIONS+1) continue; //detener el proceso si ya se ha confirmado
-
             const amount = parseFloat(tx.specification.amount.value); 
             // Convertir cantidad a USD
             const amountUSD = await CurrencyHelper.convertToUSD('XRP', amount);
-
             // Construir el objeto webhook
             const webhookData = {
                 wallet: wallet,
-                event: txID !== lastTxID ? 'new_transaction' : 'update_transaction',
+                event: txID !== lastTxID || confirmations <=1 ? 'new_transaction' : 'update_transaction',
                 data: {
                     txID: txID,
                     amount: amount,

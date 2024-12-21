@@ -25,7 +25,7 @@ async function monitor(wallet) {
             // Construir el objeto webhook
             const webhookData = {
                 wallet: wallet,
-                event: tx.txID !== lastTxID ? 'new_transaction' : 'update_transaction',
+                event: tx.txID !== lastTxID || tx.confirmations<=1? 'new_transaction' : 'update_transaction',
                 data: {
                     txID: tx.id,
                     amount: amount,
