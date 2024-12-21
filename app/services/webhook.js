@@ -10,6 +10,10 @@ const REQUEST_TIMEOUT = 10000; // Tiempo máximo para una solicitud en ms
 const retryQueue = [];
 let isRetrying = false;
 
+async function wasSent(data) {
+    const cached = await cache.get(`webhook:${payload.wallet}:${payload.data.txID}`);
+    return cached && JSON.parse(cached).confirmed && JSON.parse(cached).attempts >= MAX_DUPLICATES;
+}
 async function send(data) {
     const cacheKey = `webhook:${data.wallet}:${data.data.txID}`;
     const cached = await cache.get(cacheKey);
@@ -45,7 +49,7 @@ async function send(data) {
         const cachedData = JSON.parse(await cache.get(cacheKey)) || { confirmations: 0, attempts: 0 };
         const attempts = cachedData.attempts + 1;
 
-        const max_retries=process.env.MAX_RETRIES||MAX_RETRIES;
+        const max_retries = process.env.MAX_RETRIES || MAX_RETRIES;
 
         if (attempts <= max_retries) {
             console.log(`Agregando webhook a la cola de reintentos (${attempts}/${max_retries}) para ${data.data.txID}`);
@@ -63,7 +67,7 @@ async function send(data) {
 }
 
 async function processRetryQueue() {
-    isRetrying = true; 
+    isRetrying = true;
     while (retryQueue.length > 0) {
         const data = retryQueue.shift();
         try {
@@ -79,4 +83,4 @@ async function processRetryQueue() {
     isRetrying = false;
 }
 
-module.exports = { send };
+module.exports = { send, wasSent };

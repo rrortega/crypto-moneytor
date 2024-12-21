@@ -24,9 +24,10 @@ async function monitor(wallet) {
             const lastTxID = await cache.get(`wallet:${wallet}:last_tx`);
 
             const isIncoming = tx.specification.destination === wallet;
-            const type = isIncoming ? 'CRD' : 'DBT';
-            const amount = parseFloat(tx.specification.amount.value);
+            if (!isIncoming) continue;
+            if (confirmations > MAX_CONFIRMATIONS+1) continue; //detener el proceso si ya se ha confirmado
 
+            const amount = parseFloat(tx.specification.amount.value); 
             // Convertir cantidad a USD
             const amountUSD = await CurrencyHelper.convertToUSD('XRP', amount);
 
@@ -40,12 +41,12 @@ async function monitor(wallet) {
                     amountUSD: amountUSD,
                     coin: 'XRP',
                     confirmations: confirmations,
-                    confirmed: confirmations >= MAX_CONFIRMATIONS ,
+                    confirmed: confirmations >= MAX_CONFIRMATIONS,
                     address: isIncoming ? tx.specification.source : tx.specification.destination,
                     fee: parseFloat(tx.outcome.fee),
                     network: 'RIPPLE',
                     sowAt: new Date(tx.outcome.timestamp).toISOString(),
-                    type: type,
+                    type: 'CRD'
                 },
             };
 

@@ -26,9 +26,12 @@ async function monitor(wallet) {
             const confirmations = tx.confirmations;
             const lastTxID = await cache.get(`wallet:${wallet}:last_tx`);
 
-            const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase();
-            const type = isIncoming ? 'CRD' : 'DBT';
-            const amount = parseFloat(tx.value) / 1e6; // Convertir de USDT (con 6 decimales)
+            const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase(); 
+            if(!isIncoming) continue; 
+            if (confirmations > MAX_CONFIRMATIONS+1) continue; //detener el proceso si ya se ha confirmado
+
+
+             const amount = parseFloat(tx.value) / 1e6; // Convertir de USDT (con 6 decimales)
 
             // Convertir cantidad a USD
             const amountUSD = await CurrencyHelper.convertToUSD('USDT', amount);
@@ -48,7 +51,7 @@ async function monitor(wallet) {
                     fee: parseFloat(tx.gasUsed * tx.gasPrice) / 1e18, // Convertir de Wei a MATIC
                     network: 'POLYGON',
                     sowAt: new Date(tx.timeStamp * 1000).toISOString(),
-                    type: type,
+                    type: 'CRD'
                 },
             };
 

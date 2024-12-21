@@ -67,32 +67,35 @@ async function handleTransaction(tx) {
 
     const wallet = tx.out.find(output => walletsSubscribed.has(output.addr)).addr;
     const latestBlockHeight = await getLatestBlockHeight();
-    const confirmations = tx.block_height ? latestBlockHeight - tx.block_height : 0;
-    const amount = tx.out.reduce((sum, output) => walletsSubscribed.has(output.addr) ? sum + output.value : sum, 0) / 1e8;
-    const amountUSD = await CurrencyHelper.convertToUSD('BTC', amount);
+    const confirmations = tx.block_height ? latestBlockHeight - tx.block_height : 0; 
 
-    const webhookData = {
-        wallet,
-        event: 'new_transaction',
-        data: {
-            txID: tx.hash,
-            amount,
-            amountUSD,
-            coin: 'BTC',
-            confirmations,
-            confirmed: confirmations >= MAX_CONFIRMATIONS,
-            fee: tx.fee / 1e8,
-            network: 'BTC',
-            sowAt: new Date(tx.time * 1000).toISOString(),
-            type: 'CRD',
-        },
-    };
-
-    if (webhookData.data.confirmed) {
-        webhookData.event = 'confirmed_transaction';
+    if (confirmations < MAX_CONFIRMATIONS+1) { 
+        const amount = tx.out.reduce((sum, output) => walletsSubscribed.has(output.addr) ? sum + output.value : sum, 0) / 1e8;
+        const amountUSD = await CurrencyHelper.convertToUSD('BTC', amount); 
+        const webhookData = {
+            wallet,
+            event: 'new_transaction',
+            data: {
+                txID: tx.hash,
+                amount,
+                amountUSD,
+                coin: 'BTC',
+                confirmations,
+                confirmed: confirmations >= MAX_CONFIRMATIONS,
+                fee: tx.fee / 1e8,
+                network: 'BTC',
+                sowAt: new Date(tx.time * 1000).toISOString(),
+                type: 'CRD',
+            },
+        };
+    
+        if (webhookData.data.confirmed) {
+            webhookData.event = 'confirmed_transaction';
+        } 
+        await webhook.send(webhookData);
     }
 
-    await webhook.send(webhookData);
+
 }
 
 /**

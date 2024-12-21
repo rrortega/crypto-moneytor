@@ -20,12 +20,13 @@ async function monitor(wallet) {
 
         for (const tx of transactions) {
             const txID = tx.hash;
-            const confirmations = tx.confirmations;
+            const confirmations = tx.confirmations; 
+            const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase();
+            if(!isIncoming)continue;
+            if(confirmations >= MAX_CONFIRMATIONS+1) continue; // Detener el proceso si ya se ha confirmado 
             const lastTxID = await cache.get(`wallet:${wallet}:last_tx`);
 
-            const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase();
-            const type = isIncoming ? 'CRD' : 'DBT';
-            const amount = parseFloat(tx.value) / 1e6; // Convertir de USDT (con 6 decimales)
+             const amount = parseFloat(tx.value) / 1e6; // Convertir de USDT (con 6 decimales)
 
             // Convertir cantidad a USD
             const amountUSD = await CurrencyHelper.convertToUSD('USDT', amount);
@@ -45,7 +46,7 @@ async function monitor(wallet) {
                     fee: parseFloat(tx.gasUsed * tx.gasPrice) / 1e18, // Convertir de Wei a ETH
                     network: 'ARBITRUM',
                     sowAt: new Date(tx.timeStamp * 1000).toISOString(),
-                    type: type,
+                    type: 'CRD' 
                 },
             };
 

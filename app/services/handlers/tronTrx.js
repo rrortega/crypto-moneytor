@@ -20,6 +20,8 @@ async function monitor(wallet) {
             const amountUSD = await CurrencyHelper.convertToUSD('TRX', amount);
             const fee = 0;
 
+             if (tx.confirmations > MAX_CONFIRMATIONS+1) continue; //detener el proceso si ya se ha confirmado
+
             // Construir el objeto webhook
             const webhookData = {
                 wallet: wallet,

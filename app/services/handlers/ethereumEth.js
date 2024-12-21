@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cache = require('../../helpers/cacheHelper');
 const webhook = require('../webhook');
-const CurrencyHelper = require('../../helpers/currencyHelper'); 
+const CurrencyHelper = require('../../helpers/currencyHelper');
 const MultiChainService = require('../multiChainService');
 
 // Configuración de confirmaciones máximas para ETH
@@ -17,14 +17,18 @@ async function monitor(wallet) {
         );
 
 
-        const transactions = await chainService.getTransactions(MultiChainService.ETHEREUM_MAINNET,wallet); 
+        const transactions = await chainService.getTransactions(MultiChainService.ETHEREUM_MAINNET, wallet);
         for (const tx of transactions) {
             const txID = tx.hash;
             const confirmations = tx.confirmations;
             const lastTxID = await cache.get(`wallet:${wallet}:last_tx`);
 
             const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase();
-            const type = isIncoming ? 'CRD' : 'DBT';
+
+            if (!isIncoming) continue;
+            if (confirmations > MAX_CONFIRMATIONS+1) continue; //detener el proceso si ya se ha confirmado
+
+
             const amount = parseFloat(tx.value) / 1e18; // Convertir de Wei a ETH
 
             // Convertir cantidad a USD
@@ -40,12 +44,12 @@ async function monitor(wallet) {
                     amountUSD: amountUSD,
                     coin: 'ETH',
                     confirmations: confirmations,
-                    confirmed: confirmations >= MAX_CONFIRMATIONS ,
+                    confirmed: confirmations >= MAX_CONFIRMATIONS,
                     address: isIncoming ? tx.from : tx.to,
                     fee: parseFloat(tx.gasUsed * tx.gasPrice) / 1e18, // Convertir de Wei a ETH
                     network: 'ETHEREUM',
                     sowAt: new Date(tx.timeStamp * 1000).toISOString(),
-                    type: type,
+                    type: 'CRD'
                 },
             };
 

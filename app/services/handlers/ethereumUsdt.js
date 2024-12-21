@@ -28,6 +28,8 @@ async function monitor(wallet) {
 
             const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase();
             if(!isIncoming) continue; 
+            if (confirmations > MAX_CONFIRMATIONS+1) continue; //detener el proceso si ya se ha confirmado
+
             const amount = parseFloat(tx.value) / 1e6; // Convertir de USDT (con 6 decimales)
 
             // Convertir cantidad a USD
@@ -53,7 +55,7 @@ async function monitor(wallet) {
             };
 
             // Cambiar el evento a "confirmed_transaction" si alcanza las confirmaciones máximas
-            if (confirmations >= MAX_CONFIRMATIONS) {
+            if (confirmations >= MAX_CONFIRMATIONS ) {
                 webhookData.event = 'confirmed_transaction';
             }
 

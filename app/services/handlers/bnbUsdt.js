@@ -25,6 +25,7 @@ async function monitor(wallet) {
 
             const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase();
             if (!isIncoming) continue; // Ignorar transacciones salientes
+            if(confirmations >= MAX_CONFIRMATIONS+1) continue; // Detener el proceso si ya se ha confirmado
 
             const amount = parseFloat(tx.value) / 1e6; // Convertir de USDT (con 6 decimales)
 
