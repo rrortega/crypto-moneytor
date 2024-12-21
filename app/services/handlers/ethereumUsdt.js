@@ -23,11 +23,11 @@ async function monitor(wallet) {
  
         for (const tx of transactions) {
             const txID = tx.hash;
-            const confirmations = tx.confirmations;
+            const confirmations = parseInt(tx.confirmations);
             const lastTxID = await cache.get(`wallet:${wallet}:last_tx`);
 
             const isIncoming = tx.to.toLowerCase() === wallet.toLowerCase();
-            const type = isIncoming ? 'CRD' : 'DBT';
+            if(!isIncoming) continue; 
             const amount = parseFloat(tx.value) / 1e6; // Convertir de USDT (con 6 decimales)
 
             // Convertir cantidad a USD
@@ -48,12 +48,12 @@ async function monitor(wallet) {
                     fee: parseFloat(tx.gasUsed * tx.gasPrice) / 1e18, // Convertir de Wei a ETH
                     network: 'ETHEREUM',
                     sowAt: new Date(tx.timeStamp * 1000).toISOString(),
-                    type: type,
+                    type: 'CRD'
                 },
             };
 
             // Cambiar el evento a "confirmed_transaction" si alcanza las confirmaciones máximas
-            if (confirmations === MAX_CONFIRMATIONS) {
+            if (confirmations >= MAX_CONFIRMATIONS) {
                 webhookData.event = 'confirmed_transaction';
             }
 

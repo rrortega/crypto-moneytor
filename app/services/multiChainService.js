@@ -20,7 +20,7 @@ class MultiChainService {
         return network;
     }
 
-    async getTransactions(chainId, walletAddress, startBlock = 0, endBlock = 99999999, sort = 'asc') {
+    async getTransactions(chainId, walletAddress, startBlock = 0, endBlock = 99999999999999, sort = 'desc') {
         const network = await this.getNetworkConfig(chainId);
         const apiKey = await this.ApiKeyHelper.getAvailableKey(); // Obtiene una clave disponible
 
@@ -32,7 +32,9 @@ class MultiChainService {
                     apikey: apiKey,
                     address: walletAddress,
                     module: 'account',
-                    action: 'txlist',
+                    action: 'tokentx',
+                    page:1,
+                    offset:100,
                     startblock: startBlock,
                     endblock: endBlock,
                     sort: sort,
