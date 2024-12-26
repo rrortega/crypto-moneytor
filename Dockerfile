@@ -1,20 +1,23 @@
-# Usa una imagen base de Node.js
-FROM node:16-alpine
+# Etapa 1: Build
+FROM node:20.18.1-alpine AS builder
 
-# Establece el directorio de trabajo dentro del contenedor
-WORKDIR /
-
-# Copia los archivos necesarios para instalar dependencias
+WORKDIR /app
 COPY package*.json ./
-
-# Instala las dependencias
+# Instala TODO (producción + dev) para poder compilar
 RUN npm install
-
-# Copia el resto del proyecto
 COPY . ./
+RUN npm run build
 
-# Expone el puerto configurado
+# Etapa 2: Runtime
+FROM node:20.18.1-alpine
+
+WORKDIR /app
+# Copiamos solamente la carpeta dist (ya compilada) y los package*.json
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+
+# Instala solo dependencias de producción
+RUN npm install --omit=dev
+
 EXPOSE 3000
-
-# Comando para iniciar la aplicación (no es necesario incluir /app/)
-CMD ["node", "app/index.js"]
+CMD ["node", "dist/app/index.js"]

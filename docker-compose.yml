@@ -1,12 +1,11 @@
 version: '3.8'
 
 services:
-  crypto-monitor:
-    image: crypto-monitor:latest
+  monitor:
+    image: rrortega/cryptomoneytor:latest
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: crypto-monitor
+      dockerfile: Dockerfile 
     restart: always
     env_file:
       - .env
@@ -25,11 +24,15 @@ services:
       ARBITRUM_MAX_CONFIRMATIONS: ${ARBITRUM_MAX_CONFIRMATIONS:-12}
       BTC_MAX_CONFIRMATIONS: ${BTC_MAX_CONFIRMATIONS:-6}
       MULTICHAIN_API_KEYS: ${MULTICHAIN_API_KEYS}
+      TRONGRID_API_KEYS: ${TRONGRID_API_KEYS}
+      TRONSCAN_API_KEYS: ${TRONSCAN_API_KEYS}
       USDT_CONTRACT_ADDRESS: ${USDT_CONTRACT_ADDRESS}
 
       # Intervalos de sondeo
       POLLING_INTERVAL_ACTIVE: ${POLLING_INTERVAL_ACTIVE:-30000}
       POLLING_INTERVAL_IDLE: ${POLLING_INTERVAL_IDLE:-3600000}
+      #webhook defailt
+      WEBHOOK_URL: https://myserver.com/webhoks/cryptomoneytor
 
     ports:
       - "${PORT:-3000}:${PORT:-3000}"

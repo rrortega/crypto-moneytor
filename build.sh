@@ -1,15 +1,10 @@
 #!/bin/bash
+set -e
 
-# Nombre de la imagen
-IMAGE_NAME="cryptomoneytor"
+# Nombre de la imagen (por defecto) si no pasas argumento
+IMAGE_NAME=${1:-"rrortega/cryptomoneytor"}
 
-# Construir la imagen Docker
-echo "Construyendo la imagen Docker: $IMAGE_NAME..."
-docker build -t $IMAGE_NAME .
+echo "Construyendo la imagen Docker con la etiqueta latest: $IMAGE_NAME:latest"
+docker build -t "$IMAGE_NAME:latest" .
 
-if [ $? -eq 0 ]; then
-    echo "Imagen $IMAGE_NAME construida exitosamente."
-else
-    echo "Error al construir la imagen $IMAGE_NAME."
-    exit 1
-fi
+echo "Imagen $IMAGE_NAME:latest construida exitosamente."
