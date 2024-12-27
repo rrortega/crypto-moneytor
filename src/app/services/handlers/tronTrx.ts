@@ -1,7 +1,7 @@
-import cache from '../../helpers/cacheHelper';
-import webhook from '../webhook';
-import CurrencyHelper from '../../helpers/currencyHelper';
-import TronHelper from '../../helpers/tronHelper';
+import cache from '../../helpers/cacheHelper.js';
+import webhook from '../webhook.js';
+import CurrencyHelper from '../../helpers/currencyHelper.js';
+import TronHelper from '../../helpers/tronHelper.js';
 
 
 // Configuración de confirmaciones máximas para TRC20

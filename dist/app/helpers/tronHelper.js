@@ -1,6 +1,6 @@
 import axios from 'axios';
-import CurrencyHelper from './currencyHelper'; // Servicio de conversión 
-import ApiKeyHelper from './apiKeyHelper'; // Manejador de API Keys
+import CurrencyHelper from './currencyHelper.js'; // Servicio de conversión 
+import ApiKeyHelper from './apiKeyHelper.js'; // Manejador de API Keys
 class TronHelper {
     constructor() {
         this.tronGridBaseURL = 'https://api.trongrid.io';

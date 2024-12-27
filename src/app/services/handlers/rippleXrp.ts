@@ -1,7 +1,7 @@
 import axios from 'axios';
-import cache from '../../helpers/cacheHelper';
-import webhook from '../webhook';
-import CurrencyHelper from '../../helpers/currencyHelper';
+import cache from '../../helpers/cacheHelper.js';
+import webhook from '../webhook.js';
+import CurrencyHelper from '../../helpers/currencyHelper.js';
 
 // Configuración de confirmaciones máximas para Ripple
 const MAX_CONFIRMATIONS = parseInt(process.env.XRP_MAX_CONFIRMATIONS || '6', 10);

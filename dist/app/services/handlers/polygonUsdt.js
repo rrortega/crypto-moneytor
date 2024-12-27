@@ -1,7 +1,7 @@
-import cache from '../../helpers/cacheHelper';
-import webhook from '../webhook';
-import CurrencyHelper from '../../helpers/currencyHelper';
-import MultiChainService from '../multiChainService';
+import cache from '../../helpers/cacheHelper.js';
+import webhook from '../webhook.js';
+import CurrencyHelper from '../../helpers/currencyHelper.js';
+import MultiChainService from '../multiChainService.js';
 // Configuración de confirmaciones máximas para Polygon
 const MAX_CONFIRMATIONS = parseInt(process.env.POLYGON_MAX_CONFIRMATIONS || '12', 10);
 async function monitor(wallet) {

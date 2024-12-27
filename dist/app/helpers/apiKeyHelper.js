@@ -1,4 +1,4 @@
-import cache from './cacheHelper';
+import cache from './cacheHelper.js';
 import axios from 'axios';
 class ApiKeyHelper {
     constructor(serviceName, apiKeys, maxRequests = 10, resetInterval = 10) {

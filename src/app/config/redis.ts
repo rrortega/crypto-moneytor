@@ -1,6 +1,5 @@
 import { createClient } from 'redis';
-import dotenv from 'dotenv';
-
+import dotenv from 'dotenv'; 
 dotenv.config();
 
 const host = process.env.REDIS_HOST || 'localhost';
@@ -14,7 +13,7 @@ const url = password
 let redis: any = null,
   errorInformed = false;
 let onError = () => {
-  if (!errorInformed)
+  if (!errorInformed && 'REDIS' == (process.env.CACHE_MODE || 'MEMORY'))
     console.warn('Error al conectar con Redis:', url);
   errorInformed = true;
   redis = null;

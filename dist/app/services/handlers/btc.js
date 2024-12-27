@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import axios from 'axios';
-import webhook from '../webhook';
-import CurrencyHelper from '../../helpers/currencyHelper';
+import webhook from '../webhook.js';
+import CurrencyHelper from '../../helpers/currencyHelper.js';
 const MAX_CONFIRMATIONS = Number(process.env.BTC_MAX_CONFIRMATIONS) || 4;
 const POLLING_INTERVAL = process.env.POLLING_INTERVAL || 30000;
 const WS_RECONNECT_DELAY = 5000;

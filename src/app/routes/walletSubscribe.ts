@@ -1,6 +1,6 @@
 import express, { Router, Request, Response } from 'express';
-import cache from '../helpers/cacheHelper';
-import supportedHandlers from '../config/handlers';
+import cache from '../helpers/cacheHelper.js';
+import supportedHandlers from '../config/handlers.js';
 
 const router: Router = express.Router();
 

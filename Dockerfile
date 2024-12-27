@@ -7,6 +7,8 @@ COPY package*.json ./
 RUN npm install
 COPY . ./
 RUN npm run build
+COPY app/config/swagger.json dist/app/config/swagger.json
+
 
 # Etapa 2: Runtime
 FROM node:20.18.1-alpine

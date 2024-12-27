@@ -1,6 +1,6 @@
 import axios from 'axios';
-import cache from '../helpers/cacheHelper';
-import { WebhookData } from '../models/webhook';
+import cache from '../helpers/cacheHelper.js';
+import { WebhookData } from '../models/webhook.js';
 
 // Configuración
 const MAX_RETRIES = Number(process.env.MAX_RETRIES) || 10;

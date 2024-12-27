@@ -1,13 +1,13 @@
-import cache from '../helpers/cacheHelper';
-import usdtTRC0Handler from './handlers/tronUsdt';
-import usdtERC0Handler from './handlers/ethereumUsdt';
-import usdtPolygonHandler from './handlers/polygonUsdt';
-import btcHandler from './handlers/btc';
-import ethHandler from './handlers/ethereumEth';
-import tronHandler from './handlers/tronTrx';
-import rippleHandler from './handlers/rippleXrp';
-import bnbHandler from './handlers/bnbUsdt';
-import arbitrumHandler from './handlers/arbitrumUsdt';
+import cache from '../helpers/cacheHelper.js';
+import usdtTRC0Handler from './handlers/tronUsdt.js';
+import usdtERC0Handler from './handlers/ethereumUsdt.js';
+import usdtPolygonHandler from './handlers/polygonUsdt.js';
+import btcHandler from './handlers/btc.js';
+import ethHandler from './handlers/ethereumEth.js';
+import tronHandler from './handlers/tronTrx.js';
+import rippleHandler from './handlers/rippleXrp.js';
+import bnbHandler from './handlers/bnbUsdt.js';
+import arbitrumHandler from './handlers/arbitrumUsdt.js';
 
 
 type Handler = {

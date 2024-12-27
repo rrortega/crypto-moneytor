@@ -1,6 +1,6 @@
 import axios from 'axios';
-import networks from '../config/networks';
-import ApiKeyHelper from '../helpers/apiKeyHelper';
+import networks from '../config/networks.js';
+import ApiKeyHelper from '../helpers/apiKeyHelper.js';
 
 class MultiChainService {
     private apiKeyHelper: any;

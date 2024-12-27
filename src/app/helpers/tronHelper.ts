@@ -1,7 +1,7 @@
 import axios from 'axios';
-import CurrencyHelper from './currencyHelper'; // Servicio de conversión 
-import ApiKeyHelper from './apiKeyHelper'; // Manejador de API Keys
-import { TransactionModel } from '../models/transaction';
+import CurrencyHelper from './currencyHelper.js'; // Servicio de conversión 
+import ApiKeyHelper from './apiKeyHelper.js'; // Manejador de API Keys
+import { TransactionModel } from '../models/transaction.js';
 
 
 class TronHelper {

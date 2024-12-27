@@ -1,5 +1,5 @@
 import axios from 'axios';
-import cache from '../helpers/cacheHelper';
+import cache from '../helpers/cacheHelper.js';
 // Configuración
 const MAX_RETRIES = Number(process.env.MAX_RETRIES) || 10;
 const RETRY_DELAY = Number(process.env.RETRY_DELAY) || 5000;
@@ -87,8 +87,8 @@ export async function send(data) {
     // Obtener la(s) URL(s) de callback específicas, o la genérica .env
     let callbackUrls = [];
     try {
-        const raw = await cache.get(`wallet:${data.wallet}:callback`);
-        callbackUrls = raw ? JSON.parse(raw) : [];
+        let callbackUrls = JSON.parse(await cache.get(`wallet:${data.wallet}:callback`) ?? '[]');
+        ;
     }
     catch {
         // Si falla la lectura del cache, no bloqueamos, pero continuamos

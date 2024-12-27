@@ -1,4 +1,8 @@
-import redis from '../config/redis.js'; 
+
+import dotenv from 'dotenv';
+dotenv.config();
+import redis from '../config/redis.js';
+
 class CacheHelper {
   inMemoryCache: { [key: string]: { value: any, expiration: number } } | undefined;
   useRedis: boolean | undefined;
@@ -8,19 +12,19 @@ class CacheHelper {
     }
     // Inicializa la instancia si no existe
     this.inMemoryCache = {}; // Manejador en memoria como fallback
-    this.useRedis = !!redis; // Verifica si Redis está disponible 
+    this.useRedis = 'REDIS' == (process.env.CACHE_MODE || 'MEMORY');
+
     CacheHelper.instance = this;
   }
   static instance: CacheHelper | null = null;
 
 
-  async set(key: string, value: any, expiration = 3600):Promise<void> {
+  async set(key: string, value: any, expiration = 3600): Promise<void> {
     if (this.useRedis) {
       try {
         await redis.set(key, JSON.stringify(value), { EX: expiration });
       } catch (error) {
         console.error('Error al guardar en Redis:', (error as Error).message);
-        this.useRedis = false;
         if (this.inMemoryCache) {
           this.inMemoryCache[key] = { value, expiration: Date.now() + expiration * 1000 };
         }
@@ -38,7 +42,6 @@ class CacheHelper {
         return data ? JSON.parse(data) : null;
       } catch (error) {
         console.error('Error al obtener de Redis:', (error as Error).message);
-        this.useRedis = false;
         return this._getFromMemory(key);
       }
     } else {
@@ -52,7 +55,6 @@ class CacheHelper {
         await redis.del(key);
       } catch (error) {
         console.error('Error al eliminar de Redis:', (error as Error).message);
-        this.useRedis = false;
         if (this.inMemoryCache) {
           delete this.inMemoryCache[key];
         }
@@ -70,7 +72,6 @@ class CacheHelper {
         return members || [];
       } catch (error) {
         console.error('Error al obtener miembros de Redis:', (error as Error).message);
-        this.useRedis = false;
         return this._getArrayFromMemory(key);
       }
     } else {
@@ -78,13 +79,12 @@ class CacheHelper {
     }
   }
 
-  async sadd(key: string, value: any): Promise<number|void> {
+  async sadd(key: string, value: any): Promise<number | void> {
     if (this.useRedis) {
       try {
         return await redis.sAdd(key, value);
       } catch (error) {
         console.error('Error al agregar a Redis:', (error as Error).message);
-        this.useRedis = false;
         this._addToMemoryArray(key, value);
         return 1;
       }
@@ -100,12 +100,11 @@ class CacheHelper {
         return await redis.sRem(key, value);
       } catch (error) {
         console.error('Error al eliminar miembro de Redis:', (error as Error).message);
-        this.useRedis = false;
         this._removeFromMemoryArray(key, value);
         return 1;
       }
     } else {
-      this._removeFromMemoryArray(key, value); 
+      this._removeFromMemoryArray(key, value);
       return 1;
     }
   }
@@ -116,7 +115,6 @@ class CacheHelper {
         return await redis.incr(key);
       } catch (error) {
         console.error('Error al incrementar en Redis:', (error as Error).message);
-        this.useRedis = false;
         return this._incrementInMemory(key);
       }
     } else {
@@ -130,7 +128,6 @@ class CacheHelper {
         await redis.expire(key, seconds);
       } catch (error) {
         console.error('Error al establecer expiración en Redis:', (error as Error).message);
-        this.useRedis = false;
         if (this.inMemoryCache && this.inMemoryCache[key]) {
           this.inMemoryCache[key].expiration = Date.now() + seconds * 1000;
         }
