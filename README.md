@@ -194,10 +194,17 @@ npm start
 ```
 
 ## 🐳 **Despliegue con Docker Compose**
-Primero crea la imagen ejecutando:
+
+Puedes construir la la imagen de docker ejecutando:
 ```bash
 ./build
 ```
+
+**ó** usa la última versión publicada en ***Docker hub***
+```bash
+https://hub.docker.com/repository/docker/rrortega/cryptomoneytor/general
+```
+
 
 Luego despliega con docker-compose.yml. Ejemplo que levanta CryptoMoneytor y Redis:
  
