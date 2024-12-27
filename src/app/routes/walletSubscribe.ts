@@ -23,7 +23,6 @@ router.post('/subscribe', async (req: Request, res: Response): Promise<Response>
     try {
         const added: number = (await cache.sadd('active_wallets', walletKey)) as number; 
         const lastCachedCallbacks = JSON.parse((await cache.get(`wallet:${wallet}:callback`)) || '[]'); 
-        console.log(lastCachedCallbacks);
         if (callbackUrl) {
             if (!lastCachedCallbacks.includes(callbackUrl) ) {
                 lastCachedCallbacks.push(callbackUrl); 
