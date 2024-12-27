@@ -33,6 +33,9 @@
 .Trashes
 Thumbs.db
 
+#Compilations
+dist/
+
 # IDEs and editors #
 ####################
 .vscode/
