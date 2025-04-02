@@ -325,3 +325,4 @@ Este proyecto está bajo la licencia **MIT**.
 ------
 TAMBIÉN PUEDES REGÁLAME UN CAFECITO 
 👉 [https://ko-fi.com/rrortega](https://ko-fi.com/rrortega)
+![RRORTEGA KO-FI.COM](<rrortega-ko-fi.jpg>)
